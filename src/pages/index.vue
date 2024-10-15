@@ -16,6 +16,7 @@ const options = {
 }
 
 let client = null
+let vconsole = null
 
 const isConnecting = ref(false)
 const isConnected = ref(false)
@@ -64,7 +65,7 @@ async function leave() {
 }
 
 onMounted(() => {
-  const vconsole = new VConsole()
+  vconsole = new VConsole()
   // 如果页面url参数带上了from=aiot
   if (location.search.includes('from=aiot')) {
     options.demo = true
@@ -83,6 +84,9 @@ onMounted(() => {
 })
 
 onUnmounted(async () => {
+  if (vconsole) {
+    vconsole.destroy()
+  }
   leave()
 })
 
