@@ -1,11 +1,11 @@
 <script setup>
-import { onMounted, onUnmounted, ref, watch } from 'vue'
+import { onMounted, onUnmounted, watch } from 'vue'
 
 const props = defineProps({
-  videoTrack: {
-    type: Object,
-    default: null,
-  },
+  // videoTrack: {
+  //   type: Object,
+  //   default: null,
+  // },
   audioTrack: {
     type: Object,
     default: null,
@@ -13,10 +13,6 @@ const props = defineProps({
   config: {
     type: Object,
     default: () => ({}),
-  },
-  isSpeaking: {
-    type: Boolean,
-    default: false,
   },
   isLocal: {
     type: Boolean,
@@ -41,22 +37,22 @@ const props = defineProps({
 })
 // const emit = defineEmits(['click'])
 
-const videoRef = ref()
+// const videoRef = ref()
 
-const { videoTrack, audioTrack, config, isLocal } = props
+const { audioTrack, config, isLocal } = props
 
 onMounted(() => {
-  videoTrack?.play(videoRef.value, config)
+  // videoTrack?.play(videoRef.value, config)
   if (!isLocal) {
     audioTrack?.play()
   }
 })
 
-watch(() => props.videoTrack, (track) => {
-  if (track && videoRef.value) {
-    track.play(videoRef.value)
-  }
-})
+// watch(() => props.videoTrack, (track) => {
+//   if (track && videoRef.value) {
+//     track.play(videoRef.value)
+//   }
+// })
 
 watch(() => props.audioTrack, (track) => {
   if (!isLocal) {
@@ -65,13 +61,13 @@ watch(() => props.audioTrack, (track) => {
 })
 
 onUnmounted(() => {
-  videoTrack?.close()
+  // videoTrack?.close()
   audioTrack?.close()
 })
 </script>
 
 <template>
   <div :style="style">
-    <div ref="videoRef" :style="{ width, height }" />
+    <!-- <div ref="videoRef" :style="{ width, height }" /> -->
   </div>
 </template>
