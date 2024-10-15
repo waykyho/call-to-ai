@@ -83,6 +83,7 @@ async function leave() {
     localAudioTrack.value = null
   }
   // await client.unpublish()
+  remoteUsers.value = []
   await client.leave()
   conversationList.value = []
 }
@@ -112,9 +113,11 @@ onUnmounted(async () => {
 
 const pauseToAi = debounce(async () => {
   if (isSpeaking.value) {
+    await client.unpublish([localAudioTrack.value])
     isSpeaking.value = false
   }
   else {
+    await client.publish([localAudioTrack.value])
     isSpeaking.value = true
   }
   conversationList.value.push({
