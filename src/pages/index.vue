@@ -29,7 +29,7 @@ const localAudioTrack = ref(null)
 // const remoteAudioTrack = ref(null)
 const remoteUserId = ref(`${AI_ROBOT_USER_ID}`)
 
-const remoteUsers = ref<{ uid: string, audioTrack: any }>()
+const remoteUsers = ref<{ uid: string, audioTrack: any }[]>([])
 const conversationList = ref([])
 
 async function handleUserPublished(user, mediaType) {
@@ -41,11 +41,10 @@ async function handleUserPublished(user, mediaType) {
       role: '系统',
       text: `${user.uid}进入对话通道`,
     })
-    // remoteUserId.value = user.uid
-    // remoteAudioTrack.value = user.audioTrack
-    // remoteAudioTrack.value.play()
-    delete remoteUsers.value[user.uid]
-    remoteUsers.value[user.uid] = user
+    remoteUsers.value.push({
+      uid: user.uid,
+      audioTrack: user.audioTrack,
+    })
   }
 }
 
@@ -53,11 +52,14 @@ async function handleUserUnpublished(user, mediaType) {
   if (mediaType === 'audio' && (options.demo || (!options.demo && user.uid === AI_ROBOT_USER_ID))) {
     // await client.unsubscribe(user, mediaType);
     // remoteAudioTrack.value = null
-    delete remoteUsers.value[user.uid]
     conversationList.value.push({
       role: '系统',
       text: `${user.uid}离开对话通道`,
     })
+    const index = remoteUsers.value.findIndex(d => d.uid === user.uid)
+    if (index !== -1) {
+      remoteUsers.value.splice(index, 1)
+    }
   }
 }
 
@@ -130,9 +132,16 @@ const callToAi = debounce(async () => {
     isSpeaking.value = false
     // 动态获取token
     if (!options.token) {
-      options.token = await fetch(`https://v-downloads.obs.cn-south-1.myhuaweicloud.com/aiot-temp-token.json?t=${new Date().getTime()}`)
-        .then(res => res.json())
-        .then(res => res.token)
+      try {
+        options.token = await fetch(`https://v-downloads.obs.cn-south-1.myhuaweicloud.com/aiot-temp-token.json?t=${new Date().getTime()}`)
+          .then(res => res.json())
+          .then(res => res.token)
+      }
+      catch {
+        isConnecting.value = false
+        showNotify({ type: 'warning', message: `获取鉴权身份异常，请点击重试。` })
+        return
+      }
     }
     if (options.token) {
       try {
@@ -155,10 +164,6 @@ const callToAi = debounce(async () => {
       finally {
         isConnecting.value = false
       }
-    }
-    else {
-      isConnecting.value = false
-      showNotify({ type: 'warning', message: `获取鉴权身份异常，请点击重试。` })
     }
   }
 }, 500)
