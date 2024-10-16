@@ -26,6 +26,7 @@ let vconsole = null
 const isConnecting = ref(false)
 const isConnected = ref(false)
 const isSpeaking = ref(false)
+const isLocalMuted = ref(false)
 const localAudioTrack = ref(null)
 // const remoteAudioTrack = ref(null)
 const remoteUserId = ref(`${AI_ROBOT_USER_ID}`)
@@ -67,6 +68,8 @@ async function handleUserUnpublished(user, mediaType) {
 async function handleUserStreamMessage(uid, payload) {
   console.info(`received data stream message from ${uid}: `, payload)
   if (uid === AI_ROBOT_USER_ID) {
+    // 有AI响应回来，就对本地的音轨静音
+    await localAudioTrack.value.setMuted(true)
     conversationList.value.push({
       role: 'AI',
       text: payload.toString(),
@@ -140,11 +143,14 @@ onUnmounted(async () => {
 const pauseToAi = debounce(async () => {
   if (isSpeaking.value) {
     // await client.unpublish([localAudioTrack.value])
+    // await localAudioTrack.value.setMuted(false)
     await localAudioTrack.value.setEnabled(false)
     isSpeaking.value = false
   }
   else {
     // await client.publish([localAudioTrack.value])
+    // await localAudioTrack.value.setMuted(true)
+    // isLocalMuted.value = false
     await localAudioTrack.value.setEnabled(true)
     isSpeaking.value = true
   }
@@ -153,6 +159,26 @@ const pauseToAi = debounce(async () => {
     text: `您${isSpeaking.value ? '重新开始了' : '暂停了'}对话`,
   })
 }, 500)
+
+// 判断是否有声音
+function isSilent(audioBuffer, threshold = -50) { // threshold in dB
+  let isSilent = true
+
+  for (let channel = 0; channel < audioBuffer.numberOfChannels; channel++) {
+    const data = audioBuffer.getChannelData(channel)
+    for (let i = 0; i < data.length; i++) {
+      const dB = 20 * Math.log10(Math.abs(data[i]))
+      if (dB > threshold) {
+        isSilent = false
+        break
+      }
+    }
+    if (!isSilent)
+      break
+  }
+
+  return isSilent
+}
 
 const callToAi = debounce(async () => {
   if (isConnected.value) {
@@ -196,6 +222,27 @@ const callToAi = debounce(async () => {
             role: '系统',
             text: `您成功进入对话通道`,
           })
+
+          // 增加本地音轨通道的静音判断
+          localAudioTrack.value.setAudioFrameCallback((buffer) => {
+            if (isSpeaking.value && isLocalMuted.value) {
+              let checkSpeaking = false
+              for (let channel = 0; channel < buffer.numberOfChannels; channel += 1) {
+                // Float32Array with PCM data
+                const currentChannelData = buffer.getChannelData(channel)
+                // console.log("PCM data in channel", channel, currentChannelData);
+                checkSpeaking = !isSilent(currentChannelData)
+                if (checkSpeaking)
+                  break
+              }
+
+              if (checkSpeaking) {
+                // 取消静音
+                localAudioTrack.value.setMuted(false)
+                isLocalMuted.value = false
+              }
+            }
+          }, 4096)
         }
       }
       catch (error) {
@@ -266,7 +313,7 @@ const callToAi = debounce(async () => {
         </van-tab>
       </van-tabs>
       <p class="tips">
-        {{ isSpeaking ? '播放中 , 正在倾听' : '已暂停 , 点击恢复' }}
+        <span @click="isLocalMuted = !isLocalMuted">{{ isLocalMuted ? '您已静音' : '您已开麦' }}</span> ! {{ isSpeaking ? '已连通 , 正在倾听' : '已暂停 , 点击恢复' }}
       </p>
       <div class="mt-8 w-full flex items-center justify-center" style="flex-direction: column">
         <van-icon v-if="isSpeaking" color="#2bd14c" name="pause-circle" size="4rem" @click="pauseToAi" />
