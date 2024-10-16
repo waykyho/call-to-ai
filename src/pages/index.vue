@@ -2,7 +2,8 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 import { v4 as uuidv4 } from 'uuid'
-import { createClient, createMicrophoneAudioTrack } from 'agora-rtc-sdk-ng/esm'
+import type { IAgoraRTCClient } from 'agora-rtc-sdk-ng/esm'
+import { createClient, createMicrophoneAudioTrack, getSupportedCodec } from 'agora-rtc-sdk-ng/esm'
 import VConsole from 'vconsole'
 import { debounce } from 'lodash-es'
 import useAppStore from '@/stores/modules/app'
@@ -19,7 +20,7 @@ const options = {
   uid: null,
 }
 
-let client = null
+let client: IAgoraRTCClient = null
 let vconsole = null
 
 const isConnecting = ref(false)
@@ -63,6 +64,16 @@ async function handleUserUnpublished(user, mediaType) {
   }
 }
 
+async function handleUserStreamMessage(uid, payload) {
+  console.info(`received data stream message from ${uid}: `, payload)
+  if (uid === AI_ROBOT_USER_ID) {
+    conversationList.value.push({
+      role: 'AI',
+      text: payload.toString(),
+    })
+  }
+}
+
 watch(
   () => isDark.value,
   (newMode) => {
@@ -88,13 +99,26 @@ async function leave() {
   conversationList.value = []
 }
 
+function showVConsole() {
+  if (!vconsole) {
+    vconsole = new VConsole()
+  }
+  else {
+    vconsole.destroy()
+    vconsole = null
+  }
+}
+
 onMounted(() => {
-  vconsole = new VConsole()
   // 如果页面url参数带上了from=aiot
   if (location.search.includes('from=aiot')) {
     options.demo = true
     options.channel = 'aiot'
   }
+  getSupportedCodec().then((result) => {
+    console.log(`Supported video codec: ${result.video.join(',')}`)
+    console.log(`Supported audio codec: ${result.audio.join(',')}`)
+  })
   client = createClient({
     mode: 'rtc',
     codec: 'vp8',
@@ -102,22 +126,26 @@ onMounted(() => {
   // Add event listeners to the client.
   client.on('user-published', handleUserPublished)
   client.on('user-unpublished', handleUserUnpublished)
+  client.on('stream-message', handleUserStreamMessage)
 })
 
 onUnmounted(async () => {
   if (vconsole) {
     vconsole.destroy()
+    vconsole = null
   }
   leave()
 })
 
 const pauseToAi = debounce(async () => {
   if (isSpeaking.value) {
-    await client.unpublish([localAudioTrack.value])
+    // await client.unpublish([localAudioTrack.value])
+    await localAudioTrack.value.setEnabled(false)
     isSpeaking.value = false
   }
   else {
-    await client.publish([localAudioTrack.value])
+    // await client.publish([localAudioTrack.value])
+    await localAudioTrack.value.setEnabled(true)
     isSpeaking.value = true
   }
   conversationList.value.push({
@@ -151,7 +179,16 @@ const callToAi = debounce(async () => {
         options.uid = await client.join(options.appId, options.channel, options.token, options.uid)
         if (options.uid) {
           // 成功加入频道后再推送本地音轨
-          localAudioTrack.value = await createMicrophoneAudioTrack()
+          localAudioTrack.value = await createMicrophoneAudioTrack({
+            encoderConfig: {
+              // 音频采样率，单位为 Hz
+              sampleRate: 8000,
+              // 是否开启立体声
+              stereo: true,
+              // 音频码率，单位为 Kbps
+              bitrate: 128,
+            },
+          })
           await client.publish([localAudioTrack.value])
           isConnected.value = true
           isSpeaking.value = true
@@ -184,6 +221,7 @@ const callToAi = debounce(async () => {
           width="10rem"
           height="10rem"
           src="https://v-downloads.obs.cn-south-1.myhuaweicloud.com/head.jpeg"
+          @click="showVConsole"
         />
       </div>
       <div class="flex items-center justify-center pt-60" style="flex-direction: column">
