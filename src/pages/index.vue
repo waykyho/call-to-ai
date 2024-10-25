@@ -37,7 +37,7 @@ const indexGuide = computed(() => {
 })
 
 const isSpeaking = ref(false)
-const isLocalMuted = ref(false)
+// const isLocalMuted = ref(false)
 const localAudioTrack = ref(null)
 const logsContainerRef = ref(null)
 
@@ -86,7 +86,7 @@ async function handleUserUnpublished(user, mediaType) {
 async function handleUserStreamMessage(uid, payload) {
   const decoder = new TextDecoder('utf-8')
   const strPayload = decoder.decode(payload)
-  // console.info(`[AIOT]received data stream message from ${uid}: `, strPayload)
+  console.info(`[AIOT]received data stream message from ${uid}: `, strPayload)
   // if (uid === AI_ROBOT_USER_ID) {
   const { uid: userId, taskid: conversationId, type: msgType, msg: text } = JSON.parse(strPayload) || {}
   const isLastWord = msgType !== 0
@@ -214,43 +214,43 @@ onUnmounted(async () => {
   clearConnection()
 })
 
-const pauseToAi = debounce(async () => {
-  if (isSpeaking.value) {
-    await localAudioTrack.value.setEnabled(false)
-    isSpeaking.value = false
-  }
-  else {
-    await localAudioTrack.value.setEnabled(true)
-    isSpeaking.value = true
-  }
-  console.log(`[AIOT]您${isSpeaking.value ? '重新开始了' : '暂停了'}对话`)
-}, 500)
+// const pauseToAi = debounce(async () => {
+//   if (isSpeaking.value) {
+//     await localAudioTrack.value.setEnabled(false)
+//     isSpeaking.value = false
+//   }
+//   else {
+//     await localAudioTrack.value.setEnabled(true)
+//     isSpeaking.value = true
+//   }
+//   console.log(`[AIOT]您${isSpeaking.value ? '重新开始了' : '暂停了'}对话`)
+// }, 500)
 
 // 判断是否有声音
-function detectSpeech(audioBuffer, sampleRate, timeWindow = 1 /* 时间窗口，单位为秒 */, threshold = -30 /* 分贝阈值，可调整 */) {
-  const frameSize = sampleRate * timeWindow
-  const numFrames = Math.floor(audioBuffer.length / frameSize)
+// function detectSpeech(audioBuffer, sampleRate, timeWindow = 1 /* 时间窗口，单位为秒 */, threshold = -30 /* 分贝阈值，可调整 */) {
+//   const frameSize = sampleRate * timeWindow
+//   const numFrames = Math.floor(audioBuffer.length / frameSize)
 
-  for (let i = 0; i < numFrames; i++) {
-    const startIndex = i * frameSize
-    const endIndex = startIndex + frameSize
-    const frameData = audioBuffer.slice(startIndex, endIndex)
+//   for (let i = 0; i < numFrames; i++) {
+//     const startIndex = i * frameSize
+//     const endIndex = startIndex + frameSize
+//     const frameData = audioBuffer.slice(startIndex, endIndex)
 
-    // 计算RMS
-    let sumOfSquares = 0
-    for (let j = 0; j < frameData.length; j++) {
-      sumOfSquares += frameData[j] * frameData[j]
-    }
-    const rms = Math.sqrt(sumOfSquares / frameData.length)
-    const dB = 20 * Math.log10(rms)
+//     // 计算RMS
+//     let sumOfSquares = 0
+//     for (let j = 0; j < frameData.length; j++) {
+//       sumOfSquares += frameData[j] * frameData[j]
+//     }
+//     const rms = Math.sqrt(sumOfSquares / frameData.length)
+//     const dB = 20 * Math.log10(rms)
 
-    // console.log(`dB: ${dB}`)
-    if (dB > threshold) {
-      return true
-    }
-  }
-  return false
-}
+//     // console.log(`dB: ${dB}`)
+//     if (dB > threshold) {
+//       return true
+//     }
+//   }
+//   return false
+// }
 
 function clearConnection() {
   if (client.connectionState === 'CONNECTED') {
