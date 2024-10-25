@@ -13,7 +13,7 @@ export const REQUEST_TOKEN_KEY = 'Access-Token'
 const request = axios.create({
   // API 请求的默认前缀
   baseURL: import.meta.env.VITE_APP_API_BASE_URL,
-  timeout: 6000, // 请求超时时间
+  timeout: 10000, // 请求超时时间
 })
 
 export type RequestError = AxiosError<{
@@ -23,7 +23,7 @@ export type RequestError = AxiosError<{
 }>
 
 // 异常拦截处理器
-function errorHandler(error: RequestError): Promise<any> {
+function errorHandler(error: any): Promise<any> {
   if (error.response) {
     const { data = {}, status, statusText } = error.response
     // 403 无权限
@@ -62,7 +62,11 @@ request.interceptors.request.use(requestHandler, errorHandler)
 
 // 响应拦截器
 function responseHandler(response: { data: any }) {
-  return response.data
+  const { code, msg, data } = response.data
+  if (code === 0) {
+    return data
+  }
+  return Promise.reject(new Error(msg))
 }
 
 // Add a response interceptor

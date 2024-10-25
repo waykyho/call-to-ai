@@ -9,12 +9,12 @@ import { VantResolver } from '@vant/auto-import-resolver'
 import Components from 'unplugin-vue-components/vite'
 import { VueRouterAutoImports } from 'unplugin-vue-router'
 import VueRouter from 'unplugin-vue-router/vite'
-import mockDevServerPlugin from 'vite-plugin-mock-dev-server'
+// import mockDevServerPlugin from 'vite-plugin-mock-dev-server'
 import { VitePWA } from 'vite-plugin-pwa'
 import Sitemap from 'vite-plugin-sitemap'
-import VueDevTools from 'vite-plugin-vue-devtools'
+// import VueDevTools from 'vite-plugin-vue-devtools'
 import VueI18nPlugin from '@intlify/unplugin-vue-i18n/vite'
-import { createViteVConsole } from './vconsole'
+// import { createViteVConsole } from './vconsole'
 
 export function createVitePlugins() {
   return [
@@ -31,7 +31,7 @@ export function createVitePlugins() {
     Sitemap(),
 
     // https://github.com/pengzhanbo/vite-plugin-mock-dev-server
-    mockDevServerPlugin(),
+    // mockDevServerPlugin(),
 
     // https://github.com/antfu/unplugin-vue-components
     Components({
@@ -82,34 +82,34 @@ export function createVitePlugins() {
     UnoCSS(),
 
     // https://github.com/vadxq/vite-plugin-vconsole
-    createViteVConsole(),
+    // createViteVConsole(),
 
     // https://github.com/vuejs/devtools-next
-    VueDevTools(),
+    // VueDevTools(),
 
     // https://github.com/antfu/vite-plugin-pwa
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.svg', 'safari-pinned-tab.svg'],
+      includeAssets: ['favicon.png'],
       manifest: {
         name: 'AIoT-CallAI',
         short_name: 'CallAI',
         theme_color: '#ffffff',
         icons: [
           {
-            src: '/pwa-192x192.jpeg',
+            src: '/pwa-192x192.jpg',
             sizes: '192x192',
-            type: 'image/jpeg',
+            type: 'image/jpg',
           },
           {
-            src: '/pwa-512x512.jpeg',
+            src: '/pwa-512x512.jpg',
             sizes: '512x512',
-            type: 'image/jpeg',
+            type: 'image/jpg',
           },
           {
-            src: '/pwa-512x512.jpeg',
+            src: '/pwa-512x512.jpg',
             sizes: '512x512',
-            type: 'image/jpeg',
+            type: 'image/jpg',
             purpose: 'any maskable',
           },
         ],

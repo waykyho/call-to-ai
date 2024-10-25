@@ -1,5 +1,6 @@
 import path from 'node:path'
 import process from 'node:process'
+import fs from 'node:fs'
 import { loadEnv } from 'vite'
 import type { ConfigEnv, UserConfig } from 'vite'
 import viewport from 'postcss-mobile-forever'
@@ -18,11 +19,15 @@ export default ({ mode }: ConfigEnv): UserConfig => {
     server: {
       host: true,
       port: 3000,
+      https: {
+        key: fs.readFileSync('./key.pem'),
+        cert: fs.readFileSync('./cert.pem'),
+      },
       proxy: {
         '/api': {
-          target: '',
-          ws: false,
+          target: 'http://100.118.12.54:5555',
           changeOrigin: true,
+          rewrite: path => path.replace(/^\/api/, ''),
         },
       },
     },
