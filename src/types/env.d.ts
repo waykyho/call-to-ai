@@ -6,4 +6,10 @@ declare module '*.vue' {
   // eslint-disable-next-line ts/no-empty-object-type
   const component: DefineComponent<{}, {}, any>
   export default component
+
+  declare global {
+    interface Window {
+      __APP_VERSION__: string
+    }
+  }
 }
