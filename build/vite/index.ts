@@ -90,10 +90,13 @@ export function createVitePlugins() {
     // https://github.com/antfu/vite-plugin-pwa
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.png'],
+      devOptions: {
+        enabled: true,
+      },
+      includeAssets: ['favicon.png', 'logo.svg'],
       manifest: {
-        name: '丰语智能语音',
-        short_name: '丰语智能语音',
+        name: '丰语智能语音助手',
+        short_name: '丰语助手',
         theme_color: '#ffffff',
         icons: [
           {

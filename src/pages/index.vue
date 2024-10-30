@@ -44,7 +44,7 @@ const isSpeaking = ref(true)
 // const isLocalMuted = ref(false)
 const localAudioTrack = ref(null)
 const logsContainerRef = ref(null)
-
+const appVersion = ref('')
 const remoteAudioTrack = ref<{ uid: string, audioTrack: any }>(null)
 const conversationList = ref<{ uniqId: string, conversationId: string, done?: boolean, userId: number, message: string }[]>([
 //   { uniqId: uuidv4(), conversationId: '1', userId: 0, message: '新鲜羊肉从乌鲁木齐寄到深圳能收吗？' },
@@ -323,6 +323,7 @@ onMounted(() => {
   if (location.search.includes('from=aiot')) {
     options.demo = true
   }
+  appVersion.value = window.__APP_VERSION__
   getSupportedCodec().then((result) => {
     console.log(`Supported video codec: ${result.video.join(',')}`)
     console.log(`Supported audio codec: ${result.audio.join(',')}`)
@@ -535,6 +536,9 @@ const callToAi = debounce(async () => {
           {{ indexGuide }}
         </p>
         <van-icon name="phone-circle" :color="isConnecting ? '#0085ff' : '#2bd14c'" size="4rem" :class="isConnecting ? 'shaking' : ''" @click="callToAi" />
+        <p class="tips p-5">
+          v{{ appVersion }} ©AIOT
+        </p>
       </div>
     </div>
     <div v-else class="pretty-open h-full w-full flex flex-col">

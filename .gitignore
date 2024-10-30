@@ -26,3 +26,4 @@ stats.html
 
 pnpm-lock.yaml
 *.pem
+dev-dist

@@ -7,6 +7,7 @@ import viewport from 'postcss-mobile-forever'
 import autoprefixer from 'autoprefixer'
 import { createVitePlugins } from './build/vite'
 import { exclude, include } from './build/vite/optimize'
+import packageJson from './package.json'
 
 export default ({ mode }: ConfigEnv): UserConfig => {
   const root = process.cwd()
@@ -15,6 +16,9 @@ export default ({ mode }: ConfigEnv): UserConfig => {
   return {
     base: env.VITE_APP_PUBLIC_PATH,
     plugins: createVitePlugins(),
+    define: {
+      __APP_VERSION__: JSON.stringify(packageJson.version),
+    },
 
     server: {
       host: true,
@@ -25,8 +29,8 @@ export default ({ mode }: ConfigEnv): UserConfig => {
       },
       proxy: {
         '/api': {
-          // target: 'http://100.118.12.54:5555',
-          target: 'https://funllm.sit.sf-express.com:60001',
+          target: 'http://100.118.12.54:5555',
+          // target: 'https://funllm.sit.sf-express.com:60001',
           changeOrigin: true,
           rewrite: path => path.replace(/^\/api/, ''),
         },
