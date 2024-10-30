@@ -8,7 +8,7 @@ NODE_VERSION = "18"
 
 [[redirects]]
 from = "/api/*"
-to = "http://funllm.sit.sf-express.com/:splat"
+to = "https://funllm.sit.sf-express.com:60001/:splat"
 status = 200
 
 [[redirects]]

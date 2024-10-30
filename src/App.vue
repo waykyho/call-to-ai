@@ -5,11 +5,11 @@ import useRouteCache from '@/stores/modules/routeCache'
 import useAutoThemeSwitcher from '@/hooks/useAutoThemeSwitcher'
 
 useHead({
-  title: 'AI对话',
+  title: '丰语智能语音',
   meta: [
     {
       name: 'description',
-      content: 'AI对话',
+      content: '丰语智能语音',
     },
     {
       name: 'theme-color',

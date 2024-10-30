@@ -25,7 +25,8 @@ export default ({ mode }: ConfigEnv): UserConfig => {
       },
       proxy: {
         '/api': {
-          target: 'http://100.118.12.54:5555',
+          // target: 'http://100.118.12.54:5555',
+          target: 'https://funllm.sit.sf-express.com:60001',
           changeOrigin: true,
           rewrite: path => path.replace(/^\/api/, ''),
         },

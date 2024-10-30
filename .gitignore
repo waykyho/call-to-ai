@@ -25,3 +25,4 @@ stats.html
 .DS_Store
 
 pnpm-lock.yaml
+*.pem

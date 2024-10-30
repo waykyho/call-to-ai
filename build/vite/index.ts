@@ -92,8 +92,8 @@ export function createVitePlugins() {
       registerType: 'autoUpdate',
       includeAssets: ['favicon.png'],
       manifest: {
-        name: 'AIoT-CallAI',
-        short_name: 'CallAI',
+        name: '丰语智能语音',
+        short_name: '丰语智能语音',
         theme_color: '#ffffff',
         icons: [
           {

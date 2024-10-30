@@ -2,72 +2,57 @@
 import { onMounted, onUnmounted, watch } from 'vue'
 
 const props = defineProps({
-  // videoTrack: {
-  //   type: Object,
-  //   default: null,
-  // },
   audioTrack: {
     type: Object,
     default: null,
-  },
-  config: {
-    type: Object,
-    default: () => ({}),
   },
   isLocal: {
     type: Boolean,
     default: false,
   },
-  text: {
-    type: [String, Number],
-    default: '',
-  },
-  width: {
-    type: String,
-    default: '0px',
-  },
-  height: {
-    type: String,
-    default: '0px',
-  },
-  style: {
-    type: Object,
-    default: () => ({}),
+  showIcon: {
+    type: Boolean,
+    default: true,
   },
 })
-// const emit = defineEmits(['click'])
 
-// const videoRef = ref()
+const { audioTrack, isLocal, showIcon } = props
 
-const { audioTrack, config, isLocal } = props
-
+const isPlaying = ref(false)
 onMounted(() => {
-  // videoTrack?.play(videoRef.value, config)
   if (!isLocal) {
     audioTrack?.play()
+    isPlaying.value = true
   }
 })
-
-// watch(() => props.videoTrack, (track) => {
-//   if (track && videoRef.value) {
-//     track.play(videoRef.value)
-//   }
-// })
 
 watch(() => props.audioTrack, (track) => {
   if (!isLocal) {
     track?.play()
+    isPlaying.value = true
   }
 })
 
+function toggerPlay() {
+  if (audioTrack?.isPlaying) {
+    audioTrack?.stop()
+  }
+  else {
+    audioTrack?.play()
+  }
+  isPlaying.value = !isPlaying.value
+}
+
 onUnmounted(() => {
-  // videoTrack?.close()
   audioTrack?.close()
 })
 </script>
 
 <template>
-  <div :style="style">
-    <!-- <div ref="videoRef" :style="{ width, height }" /> -->
+  <div>
+    <div v-if="showIcon" @click="toggerPlay">
+      <van-icon v-if="isPlaying" name="volume-o" />
+      <van-icon v-else name="bullhorn-o" />
+    </div>
   </div>
 </template>
